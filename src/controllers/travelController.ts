@@ -192,3 +192,29 @@ export const searchTravelStories = async (req: Request, res: Response): Promise<
         return res.status(500).json({ error: err, message: "Something went wrong" });
     }
 }
+
+export const filterTravelStories = async (req: Request, res: Response): Promise<Response> => {
+    const { startDate, endDate } = req.query;
+    const { id: userId } = (req as any).user;
+
+    try {
+
+        const start = new Date(startDate as string);
+        const end = new Date(endDate as string);
+
+        const travelStories = await TravelStory.find({
+            userId,
+            visitedDate: {
+                $gte: new Date(start),
+                $lte: new Date(end)
+            }
+        }).sort({ isFavourite: -1 });
+
+        return res.status(200).json({
+            message: "Filtered travel stories fetched successfully",
+            travelStories
+        });
+    } catch (err) {
+        return res.status(500).json({ error: err, message: "Something went wrong" });
+    }
+}
