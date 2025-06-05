@@ -1,11 +1,24 @@
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+
+interface DecodedToken {
+  userId: string;
+  iat: number;
+  exp: number;
+}
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: DecodedToken;
+  }
+}
 
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
 };
 
-export const authenticateToken = (req: any, res: any, next: any) => {
+export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
     
     if (!token) {
