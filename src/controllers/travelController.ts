@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
+import path from 'path';
+import fs from 'fs';
 import TravelStory from '../models/travelStory.model';
+import { __dirname as multerDirname } from '../utils/multer';
 
 export const addTravelStory = async (req: Request, res: Response): Promise<Response> => {
     
@@ -62,34 +65,25 @@ export const getAllTravelStories = async (req: Request, res: Response): Promise<
 
 export const editTravelStory = async (req: Request, res: Response): Promise<Response> => {
     const { storyId } = req.params;
-    const { title, story, visitedLocation, isFavourite, imageUrl, visitedDate } = req.body;
     const { id } = (req as any).user;
 
-    if (!title || !story || !imageUrl || !visitedLocation || !visitedDate) {
-        return res.status(400).json({
-            message: "Please fill all the required fields",
-        });
+    const updateFields: any = {};
+
+    if (req.body.title !== undefined) updateFields.title = req.body.title;
+    if (req.body.story !== undefined) updateFields.story = req.body.story;
+    if (req.body.visitedLocation !== undefined) updateFields.visitedLocation = req.body.visitedLocation;
+    if (req.body.isFavourite !== undefined) updateFields.isFavourite = req.body.isFavourite;
+    if (req.body.imageUrl !== undefined) updateFields.imageUrl = req.body.imageUrl;
+    if (req.body.visitedDate !== undefined) {
+        updateFields.visitedDate = new Date(req.body.visitedDate);
     }
 
-    const parsedVisitedDate = new Date(visitedDate);
-
     try {
-        // const updatedStory = await TravelStory.findOneAndUpdate({ storyId });
         const updatedStory = await TravelStory.findOneAndUpdate(
             { _id: storyId, userId: id },
-            {
-                title,
-                story,
-                visitedLocation,
-                isFavourite,
-                imageUrl,
-                userId: id,
-                visitedDate: parsedVisitedDate
-            },
+            { $set: updateFields },
             { new: true }
         );
-
-        console.log("UPDATED STORY", updatedStory);
 
         if (!updatedStory) {
             return res.status(404).json({
@@ -105,4 +99,41 @@ export const editTravelStory = async (req: Request, res: Response): Promise<Resp
     } catch (err) {
         return res.status(500).json({ error: err, message: "Something went wrong" });
     }
+};
+
+export const deleteTravelStory = async (req: Request, res: Response): Promise<Response> => {
+    const { storyId } = req.params;
+    const { id: userId } = (req as any).user;
+
+    try {
+        const deletedStory = await TravelStory.findOneAndDelete({ _id: storyId, userId });
+
+        if (!deletedStory) {
+            return res.status(404).json({
+                message: "Travel story not found or you do not have permission to delete it"
+            });
+        }
+
+        const imageUrl = deletedStory.imageUrl;
+        const fileName = path.basename(imageUrl);
+
+        const imagePath = path.join(multerDirname, '../uploads', fileName);
+
+
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error("Error deleting image file:", err);
+            } else {
+                console.log("Image file deleted successfully:", imagePath);
+            }
+        })
+
+        return res.status(200).json({
+            message: "Travel story deleted successfully",
+            story: deletedStory
+        });
+
+    } catch (err) {
+        return res.status(500).json({ error: err, message: "Something went wrong" });
+    }   
 }
