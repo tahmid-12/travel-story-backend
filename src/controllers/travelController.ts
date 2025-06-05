@@ -64,9 +64,6 @@ export const editTravelStory = async (req: Request, res: Response): Promise<Resp
     const { storyId } = req.params;
     const { title, story, visitedLocation, isFavourite, imageUrl, visitedDate } = req.body;
     const { id } = (req as any).user;
-    // const { userId } = req.user!;
-
-    console.log("USER ID", storyId);
 
     if (!title || !story || !imageUrl || !visitedLocation || !visitedDate) {
         return res.status(400).json({
