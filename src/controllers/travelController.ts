@@ -137,3 +137,30 @@ export const deleteTravelStory = async (req: Request, res: Response): Promise<Re
         return res.status(500).json({ error: err, message: "Something went wrong" });
     }   
 }
+
+export const isTraveFavourite = async (req: Request, res: Response): Promise<Response> => {
+    const { storyId } = req.params;
+    const { isFavourite } = req.body;
+    const { id: userId } = (req as any).user;
+
+    try {
+        const travelStory = await TravelStory.findOne({ _id: storyId, userId });
+
+        if (!travelStory) {
+            return res.status(404).json({
+                message: "Travel story not found or you do not have permission to access it"
+            });
+        }
+
+        travelStory.isFavourite = isFavourite;
+        await travelStory.save();
+
+        return res.status(200).json({
+            message: "Travel story favourite status updated successfully",
+            isFavourite: travelStory.isFavourite
+        });
+
+    } catch (err) {
+        return res.status(500).json({ error: err, message: "Something went wrong" });
+    }   
+}
