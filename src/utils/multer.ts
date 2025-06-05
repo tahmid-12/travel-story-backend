@@ -3,9 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// Define __dirname manually for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export const __filename = fileURLToPath(import.meta.url);
+export const __dirname = dirname(__filename);
 
 
 const storage = multer.diskStorage({
