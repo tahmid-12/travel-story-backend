@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import path, { parse } from 'path';
+import path from 'path';
 import fs from 'fs';
 import TravelStory from '../models/travelStory.model';
 import { __dirname as multerDirname } from '../utils/multer';
