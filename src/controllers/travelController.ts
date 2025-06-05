@@ -164,3 +164,31 @@ export const isTraveFavourite = async (req: Request, res: Response): Promise<Res
         return res.status(500).json({ error: err, message: "Something went wrong" });
     }   
 }
+
+export const searchTravelStories = async (req: Request, res: Response): Promise<Response> => {
+    const { query } = req.query;
+    // console.log("Search query:", query);
+    const { id: userId } = (req as any).user;
+
+    if(!query) {
+        return res.status(400).json({ message: "Search query is required" });
+    }
+
+    try {
+        const travelStories = await TravelStory.find({
+            userId,
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { story: { $regex: query, $options: 'i' } },
+                { visitedLocation: { $regex: query, $options: 'i' } }
+            ]
+        }).sort({ isFavourite: -1 });
+
+        return res.status(200).json({
+            message: "Search results fetched successfully",
+            travelStories
+        });
+    } catch (err) {
+        return res.status(500).json({ error: err, message: "Something went wrong" });
+    }
+}
