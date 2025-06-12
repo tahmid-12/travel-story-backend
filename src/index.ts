@@ -14,9 +14,15 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigin = process.env.CLIENT_URL;
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "*" }));
+// app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+}));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
