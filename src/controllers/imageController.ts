@@ -15,7 +15,7 @@ export const imageUpload = async (req:  CustomRequest, res: Response): Promise<R
             });
         }
 
-        const imageUrl = `http://localhost:5000/src/uploads/${req.file.filename}`;
+        const imageUrl = `http://localhost:3000/src/uploads/${req.file.filename}`;
         
         return res.status(200).json({
             message: "Image uploaded successfully",

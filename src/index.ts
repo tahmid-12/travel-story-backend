@@ -27,11 +27,12 @@ app.use(cors({
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/travel", travelRoutes);
 app.use("/api/image", imageRoutes);
+
+app.use('/src/uploads', express.static(path.join(__dirname, '../src/uploads')));
 
 const startServer = async () => {
   try {
