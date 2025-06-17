@@ -14,18 +14,25 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigin = process.env.CLIENT_URL;
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "*" }));
+// app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+}));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/travel", travelRoutes);
 app.use("/api/image", imageRoutes);
+
+app.use('/src/uploads', express.static(path.join(__dirname, '../src/uploads')));
 
 const startServer = async () => {
   try {
